@@ -1,0 +1,191 @@
+// m¹b987
+.hexagon-ball-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  font-family: 'Inter', sans-serif;
+
+  // Canvas ;7
+  .game-canvas {
+    border: 3px solid #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    background: #000000;
+    cursor: crosshair;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.01);
+    }
+  }
+
+  // §6b7
+  .control-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+    // §6Ä7
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      min-width: 150px;
+
+      label {
+        font-size: 14px;
+        font-weight: 500;
+        color: white;
+        text-align: center;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      // ÑW7
+      .slider {
+        width: 120px;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+        outline: none;
+        transition: all 0.3s ease;
+
+        &::-webkit-slider-thumb {
+          appearance: none;
+          width: 18px;
+          height: 18px;
+          background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+          border-radius: 50%;
+          cursor: pointer;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+          transition: all 0.2s ease;
+
+          &:hover {
+            transform: scale(1.1);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+          }
+        }
+
+        &::-moz-range-thumb {
+          width: 18px;
+          height: 18px;
+          background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+          border-radius: 50%;
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        &:focus {
+          background: rgba(255, 255, 255, 0.3);
+        }
+      }
+    }
+
+    // 	®Ä7
+    .button-group {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+
+      .control-button {
+        padding: 12px 24px;
+        background: linear-gradient(45deg, #4ecdc4, #44d8d6);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+          background: linear-gradient(45deg, #44d8d6, #4ecdc4);
+        }
+
+        &:active {
+          transform: translateY(0);
+          box-shadow: 0 2px 10px rgba(78, 205, 196, 0.3);
+        }
+
+        &:focus {
+          outline: none;
+          box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.3);
+        }
+      }
+    }
+  }
+}
+
+// Í”¾¡
+@media (max-width: 768px) {
+  .hexagon-ball-container {
+    padding: 10px;
+
+    .game-canvas {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .control-panel {
+      padding: 15px;
+      gap: 15px;
+
+      .control-group {
+        min-width: 120px;
+
+        .slider {
+          width: 100px;
+        }
+      }
+
+      .button-group {
+        flex-direction: column;
+        gap: 10px;
+
+        .control-button {
+          padding: 10px 20px;
+          font-size: 13px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .hexagon-ball-container {
+    .control-panel {
+      flex-direction: column;
+      align-items: center;
+
+      .control-group {
+        width: 100%;
+        max-width: 200px;
+      }
+    }
+  }
+}
+
+// —r;˜„êšI7
+@media (prefers-color-scheme: dark) {
+  .hexagon-ball-container {
+    .control-panel {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  }
+}

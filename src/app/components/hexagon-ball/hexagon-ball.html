@@ -1,0 +1,61 @@
+<!-- 六边形弹球游戏容器 -->
+<div class="hexagon-ball-container">
+  <!-- Canvas画布用于渲染动画 -->
+  <canvas
+    #gameCanvas
+    class="game-canvas"
+    [width]="canvasWidth"
+    [height]="canvasHeight"
+    (click)="onCanvasClick($event)">
+  </canvas>
+
+  <!-- 控制面板 -->
+  <div class="control-panel">
+    <!-- 重力控制 -->
+    <div class="control-group">
+      <label for="gravity">重力: {{ physicsConfig.gravity.toFixed(1) }}</label>
+      <input
+        id="gravity"
+        type="range"
+        min="0"
+        max="2000"
+        step="10"
+        [(ngModel)]="physicsConfig.gravity"
+        class="slider">
+    </div>
+
+    <!-- 摩擦力控制 -->
+    <div class="control-group">
+      <label for="friction">摩擦力: {{ physicsConfig.friction.toFixed(2) }}</label>
+      <input
+        id="friction"
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        [(ngModel)]="physicsConfig.friction"
+        class="slider">
+    </div>
+
+    <!-- 旋转速度控制 -->
+    <div class="control-group">
+      <label for="rotation">旋转速度: {{ hexagonConfig.rotationSpeed.toFixed(2) }}</label>
+      <input
+        id="rotation"
+        type="range"
+        min="0"
+        max="5"
+        step="0.1"
+        [(ngModel)]="hexagonConfig.rotationSpeed"
+        class="slider">
+    </div>
+
+    <!-- 控制按钮 -->
+    <div class="button-group">
+      <button (click)="resetBall()" class="control-button">重置小球</button>
+      <button (click)="togglePause()" class="control-button">
+        {{ isPaused() ? '开始' : '暂停' }}
+      </button>
+    </div>
+  </div>
+</div>
