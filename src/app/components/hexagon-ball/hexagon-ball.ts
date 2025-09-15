@@ -49,10 +49,10 @@ export class HexagonBall implements AfterViewInit, OnDestroy {
   private ball: Ball = {
     position: { x: 400, y: 300 },
     velocity: { x: 200, y: -100 },
-    radius: 15,
+    radius: 16,
     mass: 1,
     restitution: 0.8,
-    color: '#ff6b6b'
+    color: '#ff4757'
   };
 
   // 六边形配置
@@ -61,8 +61,8 @@ export class HexagonBall implements AfterViewInit, OnDestroy {
     centerY: 300,
     radius: 200,
     rotationSpeed: 1.0,
-    strokeColor: '#4ecdc4',
-    strokeWidth: 4
+    strokeColor: '#2ed573',
+    strokeWidth: 5
   };
 
   // 物理配置
@@ -77,8 +77,8 @@ export class HexagonBall implements AfterViewInit, OnDestroy {
   private renderConfig: RenderConfig = {
     backgroundColor: '#000000',
     showTrail: true,
-    trailLength: 20,
-    trailOpacity: 0.1
+    trailLength: 30,
+    trailOpacity: 0.15
   };
 
   // 六边形边界线数组
@@ -169,9 +169,20 @@ export class HexagonBall implements AfterViewInit, OnDestroy {
    * 渲染游戏画面
    */
   private render(): void {
-    // 清空画布
-    this.ctx.fillStyle = this.renderConfig.backgroundColor;
+    // 创建背景渐变
+    const gradient = this.ctx.createRadialGradient(
+      this.canvasWidth / 2, this.canvasHeight / 2, 0,
+      this.canvasWidth / 2, this.canvasHeight / 2, Math.max(this.canvasWidth, this.canvasHeight) / 2
+    );
+    gradient.addColorStop(0, '#0a0a0f');
+    gradient.addColorStop(0.5, '#1a1a2e');
+    gradient.addColorStop(1, '#16213e');
+    
+    this.ctx.fillStyle = gradient;
     this.ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+
+    // 添加星空效果
+    this.drawStarField();
 
     // 绘制轨迹
     if (this.renderConfig.showTrail) {
@@ -183,6 +194,9 @@ export class HexagonBall implements AfterViewInit, OnDestroy {
 
     // 绘制小球
     this.drawBall();
+
+    // 添加环境光效果
+    this.drawAmbientLighting();
   }
 
   /**
@@ -397,12 +411,27 @@ export class HexagonBall implements AfterViewInit, OnDestroy {
   private drawTrail(): void {
     if (this.trailPoints.length < 2) return;
 
-    this.ctx.strokeStyle = this.ball.color;
-    this.ctx.lineWidth = 2;
-
+    // 增强轨迹效果 - 添加渐变和发光
     for (let i = 1; i < this.trailPoints.length; i++) {
       const alpha = (i / this.trailPoints.length) * this.renderConfig.trailOpacity;
-      this.ctx.globalAlpha = alpha;
+      const width = (i / this.trailPoints.length) * 4;
+      
+      // 外层发光效果
+      this.ctx.strokeStyle = `rgba(255, 107, 107, ${alpha * 0.3})`;
+      this.ctx.lineWidth = width + 4;
+      this.ctx.lineCap = 'round';
+      this.ctx.shadowColor = this.ball.color;
+      this.ctx.shadowBlur = 15;
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(this.trailPoints[i - 1].x, this.trailPoints[i - 1].y);
+      this.ctx.lineTo(this.trailPoints[i].x, this.trailPoints[i].y);
+      this.ctx.stroke();
+
+      // 内层轨迹
+      this.ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.8})`;
+      this.ctx.lineWidth = width;
+      this.ctx.shadowBlur = 5;
 
       this.ctx.beginPath();
       this.ctx.moveTo(this.trailPoints[i - 1].x, this.trailPoints[i - 1].y);
@@ -410,6 +439,8 @@ export class HexagonBall implements AfterViewInit, OnDestroy {
       this.ctx.stroke();
     }
 
+    // 重置阴影
+    this.ctx.shadowBlur = 0;
     this.ctx.globalAlpha = 1;
   }
 
@@ -419,14 +450,14 @@ export class HexagonBall implements AfterViewInit, OnDestroy {
   private drawHexagon(): void {
     if (this.hexagonEdges.length === 0) return;
 
+    // 绘制外层发光效果
     this.ctx.strokeStyle = this.hexagonConfig.strokeColor;
-    this.ctx.lineWidth = this.hexagonConfig.strokeWidth;
+    this.ctx.lineWidth = this.hexagonConfig.strokeWidth + 6;
     this.ctx.lineCap = 'round';
     this.ctx.lineJoin = 'round';
-
-    // 添加发光效果
+    this.ctx.globalAlpha = 0.3;
     this.ctx.shadowColor = this.hexagonConfig.strokeColor;
-    this.ctx.shadowBlur = 10;
+    this.ctx.shadowBlur = 20;
 
     this.ctx.beginPath();
     this.ctx.moveTo(this.hexagonEdges[0].start.x, this.hexagonEdges[0].start.y);
@@ -438,8 +469,41 @@ export class HexagonBall implements AfterViewInit, OnDestroy {
     this.ctx.closePath();
     this.ctx.stroke();
 
-    // 重置阴影
+    // 绘制主要六边形
+    this.ctx.globalAlpha = 1;
+    this.ctx.strokeStyle = this.hexagonConfig.strokeColor;
+    this.ctx.lineWidth = this.hexagonConfig.strokeWidth;
+    this.ctx.shadowBlur = 15;
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(this.hexagonEdges[0].start.x, this.hexagonEdges[0].start.y);
+
+    for (const edge of this.hexagonEdges) {
+      this.ctx.lineTo(edge.end.x, edge.end.y);
+    }
+
+    this.ctx.closePath();
+    this.ctx.stroke();
+
+    // 绘制内层高光
+    this.ctx.strokeStyle = '#ffffff';
+    this.ctx.lineWidth = 1;
+    this.ctx.globalAlpha = 0.6;
+    this.ctx.shadowBlur = 5;
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(this.hexagonEdges[0].start.x, this.hexagonEdges[0].start.y);
+
+    for (const edge of this.hexagonEdges) {
+      this.ctx.lineTo(edge.end.x, edge.end.y);
+    }
+
+    this.ctx.closePath();
+    this.ctx.stroke();
+
+    // 重置样式
     this.ctx.shadowBlur = 0;
+    this.ctx.globalAlpha = 1;
   }
 
   /**
@@ -448,31 +512,76 @@ export class HexagonBall implements AfterViewInit, OnDestroy {
   private drawBall(): void {
     const { position, radius, color } = this.ball;
 
-    // 创建径向渐变
+    // 绘制外层发光效果
+    this.ctx.shadowColor = color;
+    this.ctx.shadowBlur = 25;
+    this.ctx.globalAlpha = 0.6;
+
+    const outerGradient = this.ctx.createRadialGradient(
+      position.x, position.y, 0,
+      position.x, position.y, radius + 15
+    );
+    outerGradient.addColorStop(0, color);
+    outerGradient.addColorStop(0.7, 'rgba(255, 107, 107, 0.2)');
+    outerGradient.addColorStop(1, 'transparent');
+
+    this.ctx.fillStyle = outerGradient;
+    this.ctx.beginPath();
+    this.ctx.arc(position.x, position.y, radius + 15, 0, Math.PI * 2);
+    this.ctx.fill();
+
+    // 重置透明度
+    this.ctx.globalAlpha = 1;
+
+    // 创建主要小球渐变
     const gradient = this.ctx.createRadialGradient(
       position.x - radius * 0.3,
       position.y - radius * 0.3,
       0,
       position.x,
       position.y,
-      radius
+      radius * 1.2
     );
     gradient.addColorStop(0, '#ffffff');
-    gradient.addColorStop(0.7, color);
-    gradient.addColorStop(1, this.darkenColor(color, 0.3));
+    gradient.addColorStop(0.3, color);
+    gradient.addColorStop(0.7, this.darkenColor(color, 0.2));
+    gradient.addColorStop(1, this.darkenColor(color, 0.5));
 
     // 绘制小球阴影
-    this.ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-    this.ctx.shadowBlur = 8;
-    this.ctx.shadowOffsetY = 4;
+    this.ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+    this.ctx.shadowBlur = 15;
+    this.ctx.shadowOffsetX = 3;
+    this.ctx.shadowOffsetY = 6;
 
     this.ctx.fillStyle = gradient;
     this.ctx.beginPath();
     this.ctx.arc(position.x, position.y, radius, 0, Math.PI * 2);
     this.ctx.fill();
 
+    // 绘制高光
+    const highlight = this.ctx.createRadialGradient(
+      position.x - radius * 0.4,
+      position.y - radius * 0.4,
+      0,
+      position.x - radius * 0.4,
+      position.y - radius * 0.4,
+      radius * 0.6
+    );
+    highlight.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+    highlight.addColorStop(0.5, 'rgba(255, 255, 255, 0.3)');
+    highlight.addColorStop(1, 'transparent');
+
+    this.ctx.shadowBlur = 0;
+    this.ctx.shadowOffsetX = 0;
+    this.ctx.shadowOffsetY = 0;
+    this.ctx.fillStyle = highlight;
+    this.ctx.beginPath();
+    this.ctx.arc(position.x - radius * 0.3, position.y - radius * 0.3, radius * 0.5, 0, Math.PI * 2);
+    this.ctx.fill();
+
     // 重置阴影
     this.ctx.shadowBlur = 0;
+    this.ctx.shadowOffsetX = 0;
     this.ctx.shadowOffsetY = 0;
   }
 
@@ -557,5 +666,45 @@ export class HexagonBall implements AfterViewInit, OnDestroy {
    */
   public togglePause(): void {
     this.isPaused.set(!this.isPaused());
+  }
+
+  /**
+   * 绘制星空背景效果
+   */
+  private drawStarField(): void {
+    const time = Date.now() * 0.0001;
+    
+    for (let i = 0; i < 50; i++) {
+      const x = (Math.sin(time + i * 0.1) * 200 + this.canvasWidth / 2) % this.canvasWidth;
+      const y = (Math.cos(time + i * 0.1) * 150 + this.canvasHeight / 2) % this.canvasHeight;
+      const opacity = (Math.sin(time + i * 0.2) + 1) * 0.3;
+      
+      this.ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+      this.ctx.beginPath();
+      this.ctx.arc(x, y, 1, 0, Math.PI * 2);
+      this.ctx.fill();
+    }
+  }
+
+  /**
+   * 绘制环境光效果
+   */
+  private drawAmbientLighting(): void {
+    // 在六边形中心创建发光效果
+    const centerX = this.hexagonConfig.centerX;
+    const centerY = this.hexagonConfig.centerY;
+    
+    const ambientGradient = this.ctx.createRadialGradient(
+      centerX, centerY, 0,
+      centerX, centerY, this.hexagonConfig.radius * 0.8
+    );
+    ambientGradient.addColorStop(0, 'rgba(78, 205, 196, 0.05)');
+    ambientGradient.addColorStop(0.5, 'rgba(102, 126, 234, 0.03)');
+    ambientGradient.addColorStop(1, 'transparent');
+
+    this.ctx.fillStyle = ambientGradient;
+    this.ctx.beginPath();
+    this.ctx.arc(centerX, centerY, this.hexagonConfig.radius * 0.8, 0, Math.PI * 2);
+    this.ctx.fill();
   }
 }
